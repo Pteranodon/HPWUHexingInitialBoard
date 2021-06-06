@@ -1,0 +1,54 @@
+﻿@using HPWUHexingTrainer.Classes
+@using Newtonsoft.Json
+
+@*using System.Collections.Generic;*@
+@*using Newtonsoft.Json;*@
+
+<div> <button class="btn btn-outline-primary  mt-1" hidden=@hideButton @onclick="ShowDecisions">Show Acornyrat's Details</button></div>
+
+<div class="resultsarea decisionsarea mt-1" hidden="@hideResults">
+    @if (results != null)
+        @decisionsTemplate(results)
+    </div>
+
+
+    @code {
+    public bool hideResults = true;
+    public List<Result> results;
+    public bool hideButton = true;
+    static string json = "";
+
+    /// <summary>
+    /// This is called from the parent component to repaint after stopping training
+    /// </summary>
+    public void Refresh()
+    {
+        StateHasChanged();
+    }
+
+    private void ShowDecisions()
+    {
+        hideResults = !hideResults;
+        json = JsonConvert.SerializeObject(results);
+    }
+
+
+    RenderFragment<List<Result>> decisionsTemplate = (r) =>
+    @<div>
+        @foreach (Result decision in @r)
+            {
+                <div>@($"{ json }")</div>
+            }
+        </div>
+    ;
+
+    public AcornyratComponent()
+    {
+    }
+
+
+
+}
+
+
+

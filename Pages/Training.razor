@@ -96,6 +96,8 @@
 
 <button class="btn btn-outline-primary " @onclick="ReviewAnswers" hidden=@hideReviewButton>@reviewButtonName</button>
 
+<AcornyratComponent @ref="arc"></AcornyratComponent>
+
 <div class="row pt-2" hidden=@(!reviewInProgress)>
     <div class="col-sm-6 col-md-4 col-lg-2 font-weight-bold">
         <table>
@@ -125,13 +127,13 @@
 </div>
 
 @code {
-        [CascadingParameter]
+    [CascadingParameter]
     public UserSettings _state { get; set; }
 
     int lobbiesToRun = 20;
     int penaltySeconds = 12;
     //bool proficiencySelected = true;
-    string _selected = "Proficiency";
+    string _selected = "proficiency";
     protected bool IsSettingDisabled { get; set; }
 
     List<Result> _results = new List<Result>();
@@ -167,6 +169,7 @@
     List<Foe> _foes = new List<Foe>();
 
     LobbyResultComponent lrc = new LobbyResultComponent();
+    AcornyratComponent arc = new AcornyratComponent();
 
     string yourAnswer;
     string correctAnswer;
@@ -232,6 +235,11 @@
 
         _hideTimerElement = !_state.ShowTimer;
 
+         arc.results = null;
+        arc.hideButton = true;
+        arc.hideResults = true;
+        arc.Refresh();
+
         StartClock();
         GetNextLobby();
     }
@@ -271,6 +279,9 @@
 
             
         _hideTimerElement = false;              // Show now even if they chose to hide in settings
+        arc.results = _results;
+        arc.hideButton = false;
+        arc.Refresh();
     }
     #endregion
 
