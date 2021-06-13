@@ -491,8 +491,9 @@ namespace HPWUHexingTrainer
             AddDecision($"A2 always passes 1 focus. Add 1 to focus passed.");
 
             magiFoeValue = SortOutMagi();
-            orderedProfFoes = SortOutProfs();          
+            orderedProfFoes = SortOutProfs();
             aurorFoeValue = SortOutAurors();
+
 
 
             // Ultra rule 2 - if we have only 1 prof foe and there is a pixie or a 3* DF in the lobby, pass an extra focus to the profs
@@ -508,11 +509,11 @@ namespace HPWUHexingTrainer
                 }
             }
 
-                /*
-                 * At this point, we assumed that we are in the best case scenario, where FoeValue >= 4, which means both shields and Proficiency up.
-                 * Now, let’s see what happen in each case.
-                 */
-                int foeValue = magiFoeValue + profFoeValue + aurorFoeValue;
+            /*
+             * At this point, we assumed that we are in the best case scenario, where FoeValue >= 4, which means both shields and Proficiency up.
+             * Now, let’s see what happen in each case.
+             */
+            int foeValue = magiFoeValue + profFoeValue + aurorFoeValue;
             AddDecision($"Focus that can be passed: {foeValue + 1}.");
 
             //if (foeValue < 7)
@@ -645,7 +646,7 @@ namespace HPWUHexingTrainer
                         AddDecision($"{foughtBy} - Weakening and Confusion hex added to {_state.FoeFullName(f)}.");
                     }
                 }
-            }                
+            }
             return orderedProfFoes;
         }
 
@@ -735,8 +736,20 @@ namespace HPWUHexingTrainer
 
             else if (foeValue < 7)
             {
+                /*
+                1) If there is 1 Dark Force or less: In that case consider shielding one Auror and one Professor.
+                For this you will need to count the focus assuming that the Professor that can get the shield is in fact shielded. 
+                Therefore, 3 Werewolf doesn't get a Hex, 5 Pixie doesn't get a gex and Fierce Werewolf only gets Confusion Hex.
+                */
+                if (_state.UseUltraRule1 && orderedAurorFoes.Count <= 1 && foeValue >= 4)
+                {
+                    result.P1ShieldsP2 = true; 
+                    AddDecision("Ultra rule 1 - Focus passed >= 5 and <= 1 dark foes, shield for both A1 and P2.");
+                }
+
+
                 // if P2 doesn't get a shield AND it is fighting a 3* wolf or 5* pixie, add a weakening hex
-                if (orderedProfFoes != null && orderedProfFoes.Count == 2)
+                if (result.P1ShieldsP2 == false && orderedProfFoes != null && orderedProfFoes.Count == 2)
                     if (
                             (orderedProfFoes[1].Type == FoeType.Werewolf && (int)orderedProfFoes[1].Stars == 3)
                             ||
@@ -760,9 +773,13 @@ namespace HPWUHexingTrainer
             {
                 result.Proficiency = true;
                 //result.P1ShieldsA1 = true; // this always happens so it is implicit
-                result.P1ShieldsA2 = true;
-                AddDecision("Focus passed >= 5, We have proficiency and shields for both A1 and A2.");
-                return;
+
+                if (!result.P1ShieldsP2) // Ultra rule 1
+                {
+                    result.P1ShieldsA2 = true;
+                    AddDecision("Focus passed >= 5, We have proficiency and shields for both A1 and A2.");
+                    return;
+                }
             }
 
             if (foeValue < 4)
@@ -1045,12 +1062,12 @@ namespace HPWUHexingTrainer
             else
             {
                 // P2 gets it all
-                result.A2FocusPassedToP2 = result.A2FocusPassed; 
+                result.A2FocusPassedToP2 = result.A2FocusPassed;
                 result.A1FocusPassedToP2 = result.A1FocusPassed;
                 AddDecision("A1 & A2 - we do not have proficiency, both pass all to P2.");
             }
 
-            
+
 
             //// if A2 passed < 3 to P2, A1 should pass focus up to a max of 3 total (for both A1 & 2) or what they have. Only do this if proficiency is up
             //// any remaining focus from A1 goes to P1

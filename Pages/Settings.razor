@@ -38,8 +38,15 @@
 </div>
 <div class="row pt-2">
     <div class="col">
+        <input id="chkUltra1" type="checkbox" @bind="@_state.UseUltraRule1" />
+        <label class="pl-1" for="chkUltra2">Use Ultra rule 1?</label>
+        <br /><small>If there is 1 or less DF: Can you shield P2 instead of A2.</small>
+    </div>
+</div>
+<div class="row pt-2">
+    <div class="col">
         <input id="chkUltra2" type="checkbox" @bind="@_state.UseUltraRule2" />
-        <label class="pl-1" for="chkUltra2">Use Ultra rule2?</label>
+        <label class="pl-1" for="chkUltra2">Use Ultra rule 2?</label>
         <br /><small>If there is exactly 1 Curiosity: If there is a 3* DF or a Pixie, then A1 can pass an extra focus and only save 1 focus for P2.</small>
     </div>
 </div>
