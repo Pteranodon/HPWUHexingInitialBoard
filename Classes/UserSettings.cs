@@ -17,7 +17,7 @@ namespace HPWUHexingTrainer.Classes
         private string foeDisplayType = "Imposing Pixie";
         private bool showAdvancedRules = false;
         private bool showProgressDuringTraining = true;
-        private bool useUltraRule2 = true;
+        private bool useUltraRule2 = false;
 
         public string FoeDisplayType
         {
