@@ -4,40 +4,7 @@
 @using HPWUHexingTrainer.Classes
 
 <h3>Settings</h3>
-
-<div class="row pt-2">
-    <div class="col">
-        <input id="chkTimer" type="checkbox" @bind="@_state.ShowTimer" />
-        <label class="pl-1" for="chkTimer">Show a stopwatch?</label>
-    </div>
-</div>
-<div class="row pt-2">
-    <div class="col">
-        <input id="chkProficiency" type="checkbox" @bind="@_state.ShowProficiency" />
-        <label class="pl-1" for="chkProficiency">Show proficency separately?</label>
-    </div>
-</div>
-<div class="row pt-2">
-    <div class="col">
-        <input id="chkResults" type="checkbox" @bind="@_state.ShowResults" />
-        <label class="pl-1" for="chkResults">Show full results?</label>
-    </div>
-</div>
-
-<div class="row pt-2">
-    <div class="col">
-        <input id="chkAdvanced" type="checkbox" @bind="@_state.ShowAdvancedRules" />
-        <label class="pl-1" for="chkAdvanced">Show advanced rules in answer?</label>
-    </div>
-</div>
-
-<div class="row pt-2">
-    <div class="col">
-        <input id="chkAdvanced" type="checkbox" @bind="@_state.ShowProgressDuringTraining" />
-        <label class="pl-1" for="chkAdvanced">Show progress during Training run?</label>
-    </div>
-</div>
-
+<h5>General</h5>
 <div class="row pt-2">
     <div class="col">
         <label class="pl-1" for="chkResults">How do you want foes displayed? e.g.</label>
@@ -55,6 +22,52 @@
         </EditForm>
     </div>
 </div>
+<div class="row pt-2">
+    <div class="col">
+        <input id="chkTimer" type="checkbox" @bind="@_state.ShowTimer" />
+        <label class="pl-1" for="chkTimer">Show a stopwatch?</label>
+    </div>
+</div>
+
+
+<div class="row pt-2">
+    <div class="col">
+        <input id="chkAdvanced" type="checkbox" @bind="@_state.ShowAdvancedRules" />
+        <label class="pl-1" for="chkAdvanced">Show advanced rules in answer?</label>
+    </div>
+</div>
+<div class="row pt-2">
+    <div class="col">
+        <input id="chkUltra2" type="checkbox" @bind="@_state.UseUltraRule2" />
+        <label class="pl-1" for="chkUltra2">Use Ultra rule2?</label>
+        <br /><small>If there is exactly 1 Curiosity: If there is a 3* DF or a Pixie, then A1 can pass an extra focus and only save 1 focus for P2.</small>
+    </div>
+</div>
+
+<hr />
+<h5>Training</h5>
+<div class="row pt-2">
+    <div class="col">
+        <input id="chkAdvanced" type="checkbox" @bind="@_state.ShowProgressDuringTraining" />
+        <label class="pl-1" for="chkAdvanced">Show progress during Training run?</label>
+    </div>
+</div>
+
+<hr />
+<h5>Generated or Create lobby</h5>
+<div class="row pt-2">
+    <div class="col">
+        <input id="chkProficiency" type="checkbox" @bind="@_state.ShowProficiency" />
+        <label class="pl-1" for="chkProficiency">Show proficency separately?</label>
+    </div>
+</div>
+<div class="row pt-2">
+    <div class="col">
+        <input id="chkResults" type="checkbox" @bind="@_state.ShowResults" />
+        <label class="pl-1" for="chkResults">Show full results?</label>
+    </div>
+</div>
+
 
 @code {
     [CascadingParameter]

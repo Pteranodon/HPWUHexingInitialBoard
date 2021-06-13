@@ -494,11 +494,25 @@ namespace HPWUHexingTrainer
             orderedProfFoes = SortOutProfs();          
             aurorFoeValue = SortOutAurors();
 
-            /*
-             * At this point, we assumed that we are in the best case scenario, where FoeValue >= 4, which means both shields and Proficiency up.
-             * Now, let’s see what happen in each case.
-             */
-            int foeValue = magiFoeValue + profFoeValue + aurorFoeValue;
+
+            // Ultra rule 2 - if we have only 1 prof foe and there is a pixie or a 3* DF in the lobby, pass an extra focus to the profs
+            if (_state.UseUltraRule2 && orderedProfFoes.Count == 1)
+            {
+                bool profFoeIsPixie = orderedProfFoes[0].Type == FoeType.Pixie;
+                bool auror3starDFExists = orderedAurorFoes.Any(a => a.Stars == StarName.Imposing);
+
+                if (profFoeIsPixie || auror3starDFExists)
+                {
+                    profFoeValue++;
+                    AddDecision($"Ultra Rule 2: 1 curiosity and we have either a pixie or a 3* Dark Foe. Add 1 to focus passed.");
+                }
+            }
+
+                /*
+                 * At this point, we assumed that we are in the best case scenario, where FoeValue >= 4, which means both shields and Proficiency up.
+                 * Now, let’s see what happen in each case.
+                 */
+                int foeValue = magiFoeValue + profFoeValue + aurorFoeValue;
             AddDecision($"Focus that can be passed: {foeValue + 1}.");
 
             //if (foeValue < 7)
@@ -631,7 +645,7 @@ namespace HPWUHexingTrainer
                         AddDecision($"{foughtBy} - Weakening and Confusion hex added to {_state.FoeFullName(f)}.");
                     }
                 }
-            }
+            }                
             return orderedProfFoes;
         }
 
