@@ -77,8 +77,8 @@ a, .btn-link {
 .foeImg {
     position: relative;
     z-index: 2;
-    max-width: 90px;
-    max-height: 90px;
+/*    max-width: 90px;
+    max-height: 90px;*/
     width: auto;
     height: auto;
 }
