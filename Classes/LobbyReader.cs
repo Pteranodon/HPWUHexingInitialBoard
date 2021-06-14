@@ -769,7 +769,7 @@ namespace HPWUHexingTrainer
 
 
             // if foe value is between 5 and 7, the only optional hex was the prof 2 foe so we don't need to do any more checks
-            if (foeValue >= 4) // this doesn't include the 1 focus always passed by A2 so we only need 4 here (5 focus passed in total)
+            if (foeValue >= 4 && !result.P1ShieldsP2) // this doesn't include the 1 focus always passed by A2 so we only need 4 here (5 focus passed in total)
             {
                 result.Proficiency = true;
                 //result.P1ShieldsA1 = true; // this always happens so it is implicit
@@ -1083,7 +1083,8 @@ namespace HPWUHexingTrainer
             //result.A1FocusPassedToP1 = result.A1FocusPassed - result.A1FocusPassedToP2;
 
             // check if P1 got enough focus to shield A2 if it doesn't already have one
-            if (result.A1FocusPassedToP1 + result.A2FocusPassedToP1 >= 2 && !result.P1ShieldsA2 && !result.P2ShieldsA2)
+            // if ultra rule 1 in effect, we could have shielded P2, check that didn't happen too
+            if (result.A1FocusPassedToP1 + result.A2FocusPassedToP1 >= 2 && !result.P1ShieldsA2 && !result.P2ShieldsA2 && !result.P1ShieldsP2)
             {
                 result.P1ShieldsA2 = true;
                 AddDecision($"P1 - got {result.A1FocusPassedToP1 + result.A2FocusPassedToP1} focus, shields A2 =.");
