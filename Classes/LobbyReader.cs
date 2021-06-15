@@ -594,6 +594,12 @@ namespace HPWUHexingTrainer
                 {
                     string foughtBy = i == 0 ? "P1" : "P2";
 
+                    // if we're using ultra rule 1 and there is only 1 prof foe, P2 will take it and they may get a shield
+                    if (_state.UseUltraRule1 && orderedProfFoes.Count == 1)
+                    {
+                        foughtBy = "P2";
+                    }
+
                     var f = orderedProfFoes[i];
                     AddFoeFighter(f, null, foughtBy);
 
@@ -602,48 +608,81 @@ namespace HPWUHexingTrainer
                     var ff = result.FoeFighters.Where(f => f.FoughtBy == foughtBy).FirstOrDefault();
 
 
-
-                    //// if prof is fighting 3 or 4* pixie, no hexes
-                    //if (f.Type == FoeType.Pixie && (int)f.Stars < 5)
-                    //    profFoeValue += 2;
-
-                    //// if P2 is fighting a 3* wolf or a 5* pixie, don't hex at this stage. Check focus first as it may get a shield
-                    //else if (i == 1 && f.Type == FoeType.Werewolf && (int)f.Stars == 3)
-                    //    profFoeValue += 2;
-
-                    //else if (i == 1 && f.Type == FoeType.Pixie && (int)f.Stars == 5)
-                    //    profFoeValue += 2;
-
-
                     // if prof is fighting 3 or 4* pixie, no hexes
                     bool prof3or4Pixie = f.Type == FoeType.Pixie && (int)f.Stars < 5;
                     if (prof3or4Pixie)
                     {
                         profFoeValue += 2;
                         AddDecision($"{foughtBy} - No hexes as foe is a 3* pixie or a 4* pixie. Add 2 to focus passed.");
+                        continue;
                     }
 
-                    // if P2 is fighting a 3 * wolf or a 5 * pixie, don't hex at this stage. Check focus first as it may get a shield
-                    bool p2_3Wolf = i == 1 && f.Type == FoeType.Werewolf && (int)f.Stars == 3;
-                    bool p2_5starPixie = i == 1 && f.Type == FoeType.Pixie && (int)f.Stars == 5;
 
-                    if (p2_3Wolf || p2_5starPixie)
+                    if (f.Type == FoeType.Werewolf && (int)f.Stars == 5)
                     {
-                        profFoeValue += 2;
-                        AddDecision($"{foughtBy} - No hexes (for now) as this is for P2 who may get a shield and foe is a 3* wolf or a 5* pixie. Add 2 to focus passed.");
+                        // in Ultra rule 1 we want to only add confusion hex to 5* wolf. If P2 doesn't get a shield, we'll add weakening later.
+                        if (_state.UseUltraRule1)
+                        {
+                            ff.Hexes.Add(HexType.Confusion);
+                            AddDecision($"{foughtBy} - Ultra rule 1 - Confusion hex added to {_state.FoeFullName(f)}. Add 1 to focus passed.");
+                            profFoeValue++;
+                        }
+                        else
+                        {
+                            ff.Hexes.AddRange(new List<HexType> { HexType.Confusion, HexType.Weakening });
+                            AddDecision($"{foughtBy} - Weakening and Confusion hex added to {_state.FoeFullName(f)}.");
+                        }
+                        continue;
                     }
 
-                    // only automatically add hex to 5* pixie if P1 is going to fight it. P2 may get a shield in which case it wouldn't need a hex
-                    else if ((f.Type == FoeType.Pixie && (int)f.Stars == 5) || (f.Type == FoeType.Werewolf && (int)f.Stars < 5))
+
+                    // now decide the stuff just for P1 or P2
+                    if (foughtBy == "P1") // just for P1
                     {
-                        ff.Hexes.Add(HexType.Weakening);
-                        AddDecision($"{foughtBy} - Weakening hex added to {_state.FoeFullName(f)}. Add 1 to focus passed.");
-                        profFoeValue++;
+                        // only automatically add hex to 5* pixie or smaller wolf if P1 is going to fight it. P2 may get a shield in which case it wouldn't need a hex
+                        if ((f.Type == FoeType.Pixie && (int)f.Stars == 5) || (f.Type == FoeType.Werewolf && (int)f.Stars < 5))
+                        {
+                            ff.Hexes.Add(HexType.Weakening);
+                            AddDecision($"{foughtBy} - Weakening hex added to {_state.FoeFullName(f)}. Add 1 to focus passed.");
+                            profFoeValue++;
+                            continue;
+                        }
                     }
-                    else if (f.Type == FoeType.Werewolf && (int)f.Stars == 5)
+
+
+                    if (foughtBy == "P2") // this is just for P2
                     {
-                        ff.Hexes.AddRange(new List<HexType> { HexType.Confusion, HexType.Weakening });
-                        AddDecision($"{foughtBy} - Weakening and Confusion hex added to {_state.FoeFullName(f)}.");
+                        // if P2 is fighting a 3 * wolf or a 5 * pixie, don't hex at this stage. Check focus first as it may get a shield
+                        bool p2_3Wolf = f.Type == FoeType.Werewolf && (int)f.Stars == 3;
+                        bool p2_5starPixie = f.Type == FoeType.Pixie && (int)f.Stars == 5;
+
+
+                        if (p2_3Wolf || p2_5starPixie)
+                        {
+                            profFoeValue += 2;
+                            AddDecision($"{foughtBy} - No hexes (for now) as this is for P2 who may get a shield and foe is a 3* wolf or a 5* pixie. Add 2 to focus passed.");
+                            continue;
+                        }
+
+
+                        bool p2_4Wolf = f.Type == FoeType.Werewolf && (int)f.Stars == 4;
+
+                        if (p2_4Wolf)
+                        {
+                            // Ultra 1 rule - don't hex 4 star wolf for now. Wait to see if P2 gets a shield
+                            if (_state.UseUltraRule1)
+                            {
+                                profFoeValue += 2;
+                                AddDecision($"{foughtBy} - Ultra rule 1 - No hexes (for now) as this is for P2 who may get a shield and foe is a 4* wolf. Add 2 to focus passed.");
+                            }
+                            else
+                            {
+                                ff.Hexes.Add(HexType.Weakening);
+                                AddDecision($"{foughtBy} - Weakening hex added to {_state.FoeFullName(f)}. Add 1 to focus passed.");
+                                profFoeValue++;
+                            }
+                            continue;
+                        }
                     }
                 }
             }
@@ -743,25 +782,38 @@ namespace HPWUHexingTrainer
                 */
                 if (_state.UseUltraRule1 && orderedAurorFoes.Count <= 1 && foeValue >= 4)
                 {
-                    result.P1ShieldsP2 = true; 
+                    result.P1ShieldsP2 = true;
                     AddDecision("Ultra rule 1 - Focus passed >= 5 and <= 1 dark foes, shield for both A1 and P2.");
                 }
 
 
-                // if P2 doesn't get a shield AND it is fighting a 3* wolf or 5* pixie, add a weakening hex
-                if (result.P1ShieldsP2 == false && orderedProfFoes != null && orderedProfFoes.Count == 2)
+
+                var ff = result.FoeFighters.Where(f => f.FoughtBy == "P2").FirstOrDefault();
+
+                // P2 has a foe to fight and does not have a shield
+                if (result.P1ShieldsP2 == false && ff != null)
+                {
+                    // if P2 is fighting a 3* wolf or 5* pixie, add a weakening hex
                     if (
-                            (orderedProfFoes[1].Type == FoeType.Werewolf && (int)orderedProfFoes[1].Stars == 3)
+                            (ff.Foe.Type == FoeType.Werewolf && (int)ff.Foe.Stars == 3)
                             ||
-                            (orderedProfFoes[1].Type == FoeType.Pixie && (int)orderedProfFoes[1].Stars == 5)
+                            (ff.Foe.Type == FoeType.Pixie && (int)ff.Foe.Stars == 5)
                     )
                     {
-                        // find the foeFighter record for P2 then add a weakening hex
-                        var ff = result.FoeFighters.Where(f => f.FoughtBy == "P2").First();
+                        // add a weakening hex
                         ff.Hexes.Add(HexType.Weakening);
                         profFoeValue--;
                         AddDecision($"P2 - no shield and has a 3* wolf or a 5* pixie, add Weakening to {_state.FoeFullName(ff.Foe)}. Subtract 1 from focus passed.");
                     }
+
+                    // Ultra rule 1 - if P2 doesn't get a shield AND it is fighting a 4* or 5* wolf, add a weakening hex
+                    else if (_state.UseUltraRule1 && ff.Foe.Type == FoeType.Werewolf && (int)ff.Foe.Stars >= 4)
+                    {
+                        ff.Hexes.Add(HexType.Weakening);
+                        profFoeValue--;
+                        AddDecision($"P2 - Ultra rule 1 no shield and has a 4* or 5* wolf, add Weakening to {_state.FoeFullName(ff.Foe)}. Subtract 1 from focus passed.");
+                    }
+                }
             }
 
             foeValue = magiFoeValue + profFoeValue + aurorFoeValue;
