@@ -117,4 +117,21 @@ namespace HPWUHexingTrainer
         Dangerous = 4,
         Fierce = 5
     }
+
+    public class P1Stuff
+    {
+        public bool ShieldsA2 { get; set; }
+        public bool ShieldsP2 { get; set; }
+        public bool Weakening { get; set; }
+        public bool Confusion { get; set; }
+        public string FoeName { get; set; }
+
+        public bool ShieldA2Correct { get; set; }
+        public bool ShieldP2Correct { get; set; }
+        public bool WeakeningCorrect { get; set; }
+        public bool ConfusionCorrect { get; set; }
+        public bool FoeCorrect { get; set; }
+        public bool P1Correct { get; set; }
+    }
+
 }

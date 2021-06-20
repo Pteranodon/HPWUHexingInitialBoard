@@ -8,6 +8,7 @@
 @implements IDisposable
 @using Toolbelt.Blazor.HotKeys
 @inject HotKeys HotKeys
+
 @*<div class="d-none d-xl-block" style="background: #007bff; color: #fff; padding: 5px; text-align: center;">XL</div>
     <div class="d-none d-lg-block d-xl-none" style="background: #27a745; color: #fff; padding: 5px; text-align: center;">LG</div>
     <div class="d-none d-md-block d-lg-none" style="background: #ffc108; color: #fff; padding: 5px; text-align: center;">MD</div>
@@ -18,13 +19,14 @@
 
 <div class="row pt-2">
 
-    <div class="col" hidden=@(currentId == -1)>Test: @(_state.ShowAdvancedRules ? "Advanced" : "Standard") @_selectedPretty @_state.NumberLobbies lobbies, penalty: @_state.PenaltySeconds secs</div>
+    <div class="col" hidden=@(currentId == -1)>Test: @(_state.ShowAdvancedRules ? "Advanced" : "Standard") - @_selectedPretty @_state.NumberLobbies lobbies - penalty: @_state.PenaltySeconds secs</div>
 
     <div class="col-lg-7 col-xl-6" hidden="@(currentId != -1)">
 
         <button class="btn  @(_selected == "proficiency" ? "btn-primary" : "btn-outline-primary")  mt-1" @onclick="@(e => SetTrainingType("proficiency"))" disabled="@IsSettingDisabled">Proficiency</button>
         <button class="btn  @(_selected == "focus" ? "btn-primary" : "btn-outline-primary") ml-1 mt-1" @onclick="@(e => SetTrainingType("focus"))" disabled="@IsSettingDisabled">Focus</button>
         <button class="btn  @(_selected == "shields" ? "btn-primary" : "btn-outline-primary") ml-1 mt-1" @onclick="@(e => SetTrainingType("shields"))" disabled="@IsSettingDisabled">Shields</button>
+
 
         <button class="btn btn-outline-primary ml-3 mt-1" @onclick="ChangeAnswerRules" disabled="@IsSettingDisabled">
             Using @(_state.ShowAdvancedRules ? "Advanced" : "Standard")
@@ -80,7 +82,50 @@
                         <button id="focus-button-@btnNum" class="btn btn-lg btn-outline-primary mr-2" type="button" @onclick="() => GetAnswer(false, local_num)">@btnNum</button>
                     }
                 }
+                <div hidden=@(_selected != "P1")>
+                    <table>
+                        <tr>
+                            <td>Shields A2</td>
+                            <td><button class="btn @(_p1Answers.ShieldsA2 ? "btn-primary" : "btn-outline-primary")" @onclick="@(e => P1Answers("ShieldsA2", "yes"))">Yes</button></td>
+                            <td><button class="btn @(_p1Answers.ShieldsA2 ? "btn-outline-primary" : "btn-primary")" @onclick="@(e => P1Answers("ShieldsA2", "no"))">No</button></td>
 
+
+                        </tr>
+                        <tr>
+                            <td>Shields P2</td>
+                            <td><button class="btn @(_p1Answers.ShieldsP2 ? "btn-primary" : "btn-outline-primary")" @onclick="@(e => P1Answers("ShieldsP2", "yes"))">Yes</button></td>
+                            <td><button class="btn @(_p1Answers.ShieldsP2 ? "btn-outline-primary" : "btn-primary")" @onclick="@(e => P1Answers("ShieldsP2", "no"))">No</button></td>
+                        </tr>
+                        <tr>
+                            <td>Fights</td>
+                            <td colspan=2>
+                                <select class="form-control w-auto" @bind="@_p1Answers.FoeName">
+
+                                    <option value=""></option>
+                                    @foreach (var foe in _foes)
+                                    {
+                                        @if (foe.Type == FoeType.Pixie || foe.Type == FoeType.Werewolf)
+                                        {
+                                            <option value="@_state.FoeFullName(foe)"> @_state.FoeFullName(foe) </option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Foe gets Weakening</td>
+                            <td><button class="btn @(_p1Answers.Weakening ? "btn-primary" : "btn-outline-primary")" @onclick="@(e => P1Answers("Weakening", "yes"))">Yes</button></td>
+                            <td><button class="btn @(_p1Answers.Weakening ? "btn-outline-primary" : "btn-primary")" @onclick="@(e => P1Answers("Weakening", "no"))">No</button></td>
+                        </tr>
+                        <tr>
+                            <td>Foe gets Confusion</td>
+                            <td><button class="btn @(_p1Answers.Confusion ? "btn-primary" : "btn-outline-primary")" @onclick="@(e => P1Answers("Confusion", "yes"))">Yes</button></td>
+                            <td><button class="btn @(_p1Answers.Confusion ? "btn-outline-primary" : "btn-primary")" @onclick="@(e => P1Answers("Confusion", "no"))">No</button></td>
+                        </tr>
+                    </table>
+
+                    <button class="btn btn-outline-primary pt-1" @onclick="() => GetAnswer(false, 0)">Next</button>
+                </div>
             </div>
         </div>
         <div class="row ml-3 pt-2" hidden=@(_selected != "focus")>
@@ -109,23 +154,23 @@
 <button class="btn btn-outline-primary " @onclick="ReviewAnswers" hidden=@hideReviewButton>@reviewButtonName</button>
 
 <div class="row pt-2" hidden=@(!reviewInProgress)>
-    <div class="col-sm-6 col-md-4 col-lg-2 font-weight-bold">
+    <div class="col-sm-6 col-md-4 col-lg-2">
         <table>
             <tr>
                 <td>Lobby:</td>
                 <td>@reviewItem</td>
             </tr>
             <tr>
-                <td>You:</td>
-                <td>@yourAnswer</td>
+                <td class="align-top">You:</td>
+                <td>@((MarkupString)yourAnswer)</td>
             </tr>
             <tr>
-                <td>Correct:</td>
-                <td>@correctAnswer</td>
+                <td class="align-top">Correct:</td>
+                <td>@((MarkupString)@correctAnswer)</td>
             </tr>
-            @*<tr>
+            <tr>
                 <td class=@(passFailText == "Pass" ? "text-success" : "text-warning") colspan="2">@passFailText</td>
-                </tr>*@
+            </tr>
         </table>
     </div>
     <div>
@@ -149,6 +194,7 @@
     string _selected = "proficiency";
     string _selectedPretty => _selected.Humanize(LetterCasing.Title);
 
+    P1Stuff _p1Answers = new P1Stuff();
 
 
     protected bool IsSettingDisabled { get; set; }
@@ -204,26 +250,17 @@
         base.OnInitialized();
 
         currentId = Id ?? -1;
-
-
-        @*        Id = Id ?? -1;*@
-
-        if (currentId == 1)
-            SetTrainingType("proficiency");
-
-        else if (currentId == 2)
-            SetTrainingType("focus");
+        ChangedTrainingType();
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
-        // reset the form
-
         Id = Id ?? -1;
+
+        // only do this is we've changed the type of training
         if (Id != currentId)
         {
             currentId = Id ?? -1;
-
 
             StopTimer();
             reviewInProgress = false;
@@ -232,11 +269,7 @@
             trainingFinished = false;
             _hideTimerElement = true;
 
-            if (Id == 1)
-                SetTrainingType("proficiency");
-
-            else if (Id == 2)
-                SetTrainingType("focus");
+            ChangedTrainingType();
         }
     }
 
@@ -245,7 +278,7 @@
     void SetTrainingType(string type)
     {
         _selected = type;
-        penaltySeconds = 12;
+        @*penaltySeconds = 12;*@
 
         if (_selected == "focus" || _selected == "shields")
             _hideNumbers = false;
@@ -253,6 +286,21 @@
             _hideNumbers = true;
 
         Refresh();
+    }
+
+    void ChangedTrainingType()
+    {
+        if (currentId == 1)
+            SetTrainingType("proficiency");
+        else if (currentId == 2)
+            SetTrainingType("focus");
+        else if (currentId == 3)
+            SetTrainingType("shields");
+
+        else if (currentId == 4)
+            SetTrainingType("P1");
+
+
     }
 
     private void ChangeAnswerRules()
@@ -276,9 +324,9 @@
                 // Note that the following line is necessary because otherwise
                 // Blazor would not recognize the state change and not refresh the UI
                 InvokeAsync(() =>
-                                                {
-                                                    StateHasChanged();
-                                                });
+                                                                        {
+                                                                            StateHasChanged();
+                                                                        });
             }
         }), null, 100, 100);
     }
@@ -383,6 +431,10 @@
             _li.ImgSrc = "images/blankboard.png"; ;
             _li.HideImage = false;
             _li.Refresh();
+            _li.Refresh();
+
+            if (_selected == "P1")
+                _p1Answers = new P1Stuff();
         }
         else
         {
@@ -404,9 +456,13 @@
                     (lr.P2ShieldsA2 ? 1 : 0) +
                     (lr.P1ShieldsP2 ? 1 : 0);
 
+
+            bool P1Correct = CheckP1();
+
             if ((_selected == "proficiency" && lr.Proficiency == proficiency) ||
                     (_selected == "focus" && lr.A1FocusPassed + lr.A2FocusPassed == value) ||
-                    (_selected == "shields" && shieldsSelected == value)
+                    (_selected == "shields" && shieldsSelected == value) ||
+                    (_selected == "P1" && P1Correct)
         )
 
                 correct++;
@@ -421,10 +477,56 @@
             }
 
             // add this foe list and result to a list for review later
-            _results.Add(new Result(lobbiesRead, _foes, lr, proficiency, value, isCorrect));
+            _results.Add(new Result(lobbiesRead, _foes, lr, proficiency, value, isCorrect, _p1Answers));
 
             GetNextLobby();
         }
+    }
+
+
+    private void P1Answers(string AnswerType, string answer)
+    {
+        if (AnswerType == "ShieldsA2")
+            _p1Answers.ShieldsA2 = answer == "yes" ? true : false;
+
+        if (AnswerType == "ShieldsP2")
+            _p1Answers.ShieldsP2 = answer == "yes" ? true : false;
+
+        if (AnswerType == "Weakening")
+            _p1Answers.Weakening = answer == "yes" ? true : false;
+
+        if (AnswerType == "Confusion")
+            _p1Answers.Confusion = answer == "yes" ? true : false;
+    }
+
+    private bool CheckP1()
+    {
+        _p1Answers.ShieldA2Correct = lr.P1ShieldsA2 == _p1Answers.ShieldsA2;
+        _p1Answers.ShieldP2Correct = lr.P1ShieldsP2 == _p1Answers.ShieldsP2;
+
+        FoeFighter P1Foe = lr.FoeFighters.FirstOrDefault(f => f.FoughtBy == "P1");
+
+        bool P1Weakening = false, P1Confusion = false;
+        string P1Fights = null;
+
+        if (P1Foe != null)
+        {
+            P1Weakening = P1Foe.Hexes.Any(h => h.ToString() == HexType.Weakening.ToString());
+            P1Confusion = P1Foe.Hexes.Any(h => h.ToString() == HexType.Confusion.ToString());
+            P1Fights = P1Foe.FoeName;
+        }
+
+        _p1Answers.WeakeningCorrect = _p1Answers.Weakening == P1Weakening;
+        _p1Answers.ConfusionCorrect = _p1Answers.Confusion == P1Confusion;
+        _p1Answers.FoeCorrect = _p1Answers.FoeName == P1Fights;
+
+        _p1Answers.P1Correct = _p1Answers.ShieldA2Correct &&
+        _p1Answers.ShieldP2Correct &&
+        _p1Answers.WeakeningCorrect &&
+        _p1Answers.ConfusionCorrect &&
+        _p1Answers.FoeCorrect;
+
+        return _p1Answers.P1Correct; ;
     }
 
     private void ReviewAnswers()
@@ -442,7 +544,22 @@
         {
             reviewItem = incorrectResult.LobbyNumber;
 
-            if (_selected == "proficiency")
+            if (_selected == "P1")
+            {
+                yourAnswer = $"Shields A2: { (incorrectResult.P1Results.ShieldsA2 ? "Yes" : "No") }<br />";
+                yourAnswer += $"Shields P2: { (incorrectResult.P1Results.ShieldsP2 ? "Yes" : "No") }<br />";
+                yourAnswer += $"Fights: { incorrectResult.P1Results.FoeName }<br />";
+                yourAnswer += $"Weakening: { (incorrectResult.P1Results.Weakening ? "Yes" : "No") }<br />";
+                yourAnswer += $"Confusion: { (incorrectResult.P1Results.Confusion ? "Yes" : "No") }";
+
+                correctAnswer = $"Shields A2: { (incorrectResult.LobbyResult.P1ShieldsA2 ? "Yes" : "No") }<br />";
+                correctAnswer += $"Shields P2: { (incorrectResult.LobbyResult.P1ShieldsP2 ? "Yes" : "No") }<br />";
+
+                FoeFighter ff = incorrectResult.LobbyResult.FoeFighters.FirstOrDefault(f => f.FoughtBy == "P1");
+                correctAnswer += $"Fights: {ff.FoeNameWithHexes}";
+            }
+
+            else if (_selected == "proficiency")
             {
                 yourAnswer = incorrectResult.ProficiencyAnswer ? "Yes" : "No";
                 correctAnswer = incorrectResult.LobbyResult.Proficiency ? "Yes" : "No";
@@ -513,20 +630,6 @@
     .Add(ModKeys.None, Keys.Num3, () => GetAnswer(false, 3));
     }
 
-    //    public void AddHotkeys()
-    //    {
-    //        this.HotKeysContext = this.HotKeys.CreateContext()
-    //.Add(ModKeys.None, Keys.Y, () => GetAnswer(true))
-    //.Add(ModKeys.None, Keys.N, () => GetAnswer(false))
-    //.Add(ModKeys.None, Keys.Num1, () => GetAnswer(false, 1))
-    //.Add(ModKeys.None, Keys.Num2, () => GetAnswer(false, 2))
-    //.Add(ModKeys.None, Keys.Num3, () => GetAnswer(false, 3))
-    //.Add(ModKeys.None, Keys.Num4, () => GetAnswer(false, 4))
-    //.Add(ModKeys.None, Keys.Num5, () => GetAnswer(false, 5))
-    //.Add(ModKeys.None, Keys.Num6, () => GetAnswer(false, 6))
-    //.Add(ModKeys.None, Keys.Num7, () => GetAnswer(false, 7))
-    //.Add(ModKeys.None, Keys.Num8, () => GetAnswer(false, 8));
-    //    }
 
     public void Dispose()
     {

@@ -15,13 +15,14 @@ namespace HPWUHexingTrainer.Classes
         public int OtherAnswer { get; set; }
         public bool ProficiencyAnswer { get; set; }
 
+        public P1Stuff P1Results = new P1Stuff();
 
 
         public Result()
         {
         }
 
-        public Result(int lobbyNumber, List<Foe> foesList, LobbyResult lobbyResult, bool proficiencyAnswer, int otherAnswer, bool correctAnswer)
+        public Result(int lobbyNumber, List<Foe> foesList, LobbyResult lobbyResult, bool proficiencyAnswer, int otherAnswer, bool correctAnswer, P1Stuff p1)
         {
             LobbyNumber = lobbyNumber;
             FoesList = foesList;
@@ -29,6 +30,7 @@ namespace HPWUHexingTrainer.Classes
             ProficiencyAnswer = proficiencyAnswer;
             OtherAnswer = otherAnswer;
             CorrectAnswer = correctAnswer;
+            P1Results = p1;
         }
     }
 
