@@ -1,4 +1,6 @@
 ﻿@page "/training"
+@page "/training/{Id:int}"
+
 @using HPWUHexingTrainer.Classes
 @using System.Threading;
 @using Humanizer;
@@ -15,7 +17,10 @@
 <h5>See how quickly you can read some lobbies</h5>
 
 <div class="row pt-2">
-    <div class="col-lg-7 col-xl-6 ">
+
+    <div class="col" hidden=@(currentId == -1)>Test: @(_state.ShowAdvancedRules ? "Advanced" : "Standard") @_selectedPretty @_state.NumberLobbies lobbies, penalty: @_state.PenaltySeconds secs</div>
+
+    <div class="col-lg-7 col-xl-6" hidden="@(currentId != -1)">
 
         <button class="btn  @(_selected == "proficiency" ? "btn-primary" : "btn-outline-primary")  mt-1" @onclick="@(e => SetTrainingType("proficiency"))" disabled="@IsSettingDisabled">Proficiency</button>
         <button class="btn  @(_selected == "focus" ? "btn-primary" : "btn-outline-primary") ml-1 mt-1" @onclick="@(e => SetTrainingType("focus"))" disabled="@IsSettingDisabled">Focus</button>
@@ -29,7 +34,7 @@
             @(_state.ShowProgressDuringTraining ? "Showing Progress" : "Don't show progress")
         </button>
     </div>
-    <div class="col-lg col-xl-6 pt-2 pt-lg-0">
+    <div class="col-lg col-xl-6 pt-2 pt-lg-0" hidden="@(currentId != -1)">
         <table>
             <tr>
                 <td><label>Lobbies in test?</label></td>
@@ -41,8 +46,8 @@
             </tr>
 
             @*<tr>
-                    <td colspan="2"><button class="btn btn-outline-primary" @onclick="ChangeShowProgress" disabled="@IsSettingDisabled">
-                        @(_state.ShowProgressDuringTraining ? "Showing Progress" : "Don't show progress")</button></td>
+                <td colspan="2"><button class="btn btn-outline-primary" @onclick="ChangeShowProgress" disabled="@IsSettingDisabled">
+                @(_state.ShowProgressDuringTraining ? "Showing Progress" : "Don't show progress")</button></td>
                 </tr>*@
         </table>
     </div>
@@ -119,7 +124,7 @@
                 <td>@correctAnswer</td>
             </tr>
             @*<tr>
-                    <td class=@(passFailText == "Pass" ? "text-success" : "text-warning") colspan="2">@passFailText</td>
+                <td class=@(passFailText == "Pass" ? "text-success" : "text-warning") colspan="2">@passFailText</td>
                 </tr>*@
         </table>
     </div>
@@ -132,6 +137,9 @@
 </div>
 
 @code {
+    [Parameter]
+    public int? Id { get; set; }
+
     [CascadingParameter]
     public UserSettings _state { get; set; }
 
@@ -139,6 +147,10 @@
     int penaltySeconds = 12;
     //bool proficiencySelected = true;
     string _selected = "proficiency";
+    string _selectedPretty => _selected.Humanize(LetterCasing.Title);
+
+
+
     protected bool IsSettingDisabled { get; set; }
 
     List<Result> _results = new List<Result>();
@@ -161,6 +173,7 @@
     int _secondsDelayUsed;
     string _selectedUsed;
     string _methodUsed;
+    int currentId = -1;
 
     private string _timeElapsed = "0.0";
     Stopwatch myWatch = new Stopwatch();
@@ -186,7 +199,46 @@
 
     HotKeysContext HotKeysContext;
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
 
+        currentId = Id ?? -1;
+
+
+        @*        Id = Id ?? -1;*@
+
+        if (currentId == 1)
+            SetTrainingType("proficiency");
+
+        else if (currentId == 2)
+            SetTrainingType("focus");
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // reset the form
+
+        Id = Id ?? -1;
+        if (Id != currentId)
+        {
+            currentId = Id ?? -1;
+
+
+            StopTimer();
+            reviewInProgress = false;
+            hideReviewButton = true;
+            reviewInProgress = false;
+            trainingFinished = false;
+            _hideTimerElement = true;
+
+            if (Id == 1)
+                SetTrainingType("proficiency");
+
+            else if (Id == 2)
+                SetTrainingType("focus");
+        }
+    }
 
 
     #region Training settings
@@ -199,6 +251,8 @@
             _hideNumbers = false;
         else
             _hideNumbers = true;
+
+        Refresh();
     }
 
     private void ChangeAnswerRules()
@@ -222,9 +276,9 @@
                 // Note that the following line is necessary because otherwise
                 // Blazor would not recognize the state change and not refresh the UI
                 InvokeAsync(() =>
-                {
-                    StateHasChanged();
-                });
+                                                {
+                                                    StateHasChanged();
+                                                });
             }
         }), null, 100, 100);
     }
@@ -240,7 +294,7 @@
             AddHotkeysShields();
 
         _secondsDelayUsed = penaltySeconds; // set this at start to display after training.
-        _selectedUsed = _selected.Humanize(LetterCasing.Title);
+        _selectedUsed = _selectedPretty;
         _methodUsed = _state.ShowAdvancedRules ? "Advanced" : "Standard";
 
         Count = 0.0;
@@ -267,7 +321,10 @@
     void StopTimer()
     {
         timerStarted = false;
-        timer.Dispose();
+
+        if (timer != null)
+            timer.Dispose();
+
         IsSettingDisabled = false;
         trainingInProgress = false;
         trainingFinished = true;
@@ -300,7 +357,8 @@
 
         _hideTimerElement = false;              // Show now even if they chose to hide in settings
 
-        this.HotKeysContext.Dispose();
+        if (HotKeysContext != null)
+            this.HotKeysContext.Dispose();
 
         Refresh();
     }
@@ -432,27 +490,27 @@
     public void AddHotkeysYN()
     {
         this.HotKeysContext = this.HotKeys.CreateContext()
-.Add(ModKeys.None, Keys.Y, () => GetAnswer(true))
-.Add(ModKeys.None, Keys.N, () => GetAnswer(false));
+    .Add(ModKeys.None, Keys.Y, () => GetAnswer(true))
+    .Add(ModKeys.None, Keys.N, () => GetAnswer(false));
     }
     public void AddHotkeysFocus()
     {
         this.HotKeysContext = this.HotKeys.CreateContext()
-.Add(ModKeys.None, Keys.Num1, () => GetAnswer(false, 1))
-.Add(ModKeys.None, Keys.Num2, () => GetAnswer(false, 2))
-.Add(ModKeys.None, Keys.Num3, () => GetAnswer(false, 3))
-.Add(ModKeys.None, Keys.Num4, () => GetAnswer(false, 4))
-.Add(ModKeys.None, Keys.Num5, () => GetAnswer(false, 5))
-.Add(ModKeys.None, Keys.Num6, () => GetAnswer(false, 6))
-.Add(ModKeys.None, Keys.Num7, () => GetAnswer(false, 7))
-.Add(ModKeys.None, Keys.Num8, () => GetAnswer(false, 8));
+    .Add(ModKeys.None, Keys.Num1, () => GetAnswer(false, 1))
+    .Add(ModKeys.None, Keys.Num2, () => GetAnswer(false, 2))
+    .Add(ModKeys.None, Keys.Num3, () => GetAnswer(false, 3))
+    .Add(ModKeys.None, Keys.Num4, () => GetAnswer(false, 4))
+    .Add(ModKeys.None, Keys.Num5, () => GetAnswer(false, 5))
+    .Add(ModKeys.None, Keys.Num6, () => GetAnswer(false, 6))
+    .Add(ModKeys.None, Keys.Num7, () => GetAnswer(false, 7))
+    .Add(ModKeys.None, Keys.Num8, () => GetAnswer(false, 8));
     }
     public void AddHotkeysShields()
     {
         this.HotKeysContext = this.HotKeys.CreateContext()
-.Add(ModKeys.None, Keys.Num1, () => GetAnswer(false, 1))
-.Add(ModKeys.None, Keys.Num2, () => GetAnswer(false, 2))
-.Add(ModKeys.None, Keys.Num3, () => GetAnswer(false, 3));
+    .Add(ModKeys.None, Keys.Num1, () => GetAnswer(false, 1))
+    .Add(ModKeys.None, Keys.Num2, () => GetAnswer(false, 2))
+    .Add(ModKeys.None, Keys.Num3, () => GetAnswer(false, 3));
     }
 
     //    public void AddHotkeys()

@@ -17,6 +17,8 @@ namespace HPWUHexingTrainer.Classes
         private string foeDisplayType = "Imposing Pixie";
         private bool showAdvancedRules = false;
         private bool showProgressDuringTraining = true;
+        private int numberLobbies = 20;
+        private int penaltySeconds = 12;
 
         public string FoeDisplayType
         {
@@ -64,6 +66,22 @@ namespace HPWUHexingTrainer.Classes
             get => showProgressDuringTraining; set
             {
                 showProgressDuringTraining = value;
+                RaisePropertyChanged();
+            }
+        }
+        public int NumberLobbies
+        {
+            get => numberLobbies; set
+            {
+                numberLobbies = value;
+                RaisePropertyChanged();
+            }
+        }
+        public int PenaltySeconds
+        {
+            get => penaltySeconds; set
+            {
+                penaltySeconds = value;
                 RaisePropertyChanged();
             }
         }

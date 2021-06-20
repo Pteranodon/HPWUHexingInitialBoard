@@ -40,6 +40,20 @@
 
 <div class="row pt-2">
     <div class="col">
+        <input id="numLobbies" type="number" @bind="@_state.NumberLobbies" />
+        <label class="pl-1" for="numLobbies">Numbers of lobbies in a Training run</label>
+    </div>
+</div>
+
+<div class="row pt-2">
+    <div class="col">
+        <input id="numPenalty" type="number" @bind="@_state.PenaltySeconds" />
+        <label class="pl-1" for="numPenalty">Penalty in seconds for an incorrect answer</label>
+    </div>
+</div>
+
+<div class="row pt-2">
+    <div class="col">
         <label class="pl-1" for="chkResults">How do you want foes displayed? e.g.</label>
         <EditForm Model="_state">
             <InputRadioGroup @bind-Value="@_state.FoeDisplayType">
