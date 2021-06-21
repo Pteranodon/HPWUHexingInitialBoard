@@ -168,9 +168,9 @@
                 <td class="align-top">Correct:</td>
                 <td>@((MarkupString)@correctAnswer)</td>
             </tr>
-            <tr>
+@*            <tr>
                 <td class=@(passFailText == "Pass" ? "text-success" : "text-warning") colspan="2">@passFailText</td>
-            </tr>
+            </tr>*@
         </table>
     </div>
     <div>
@@ -556,7 +556,7 @@
                 correctAnswer += $"Shields P2: { (incorrectResult.LobbyResult.P1ShieldsP2 ? "Yes" : "No") }<br />";
 
                 FoeFighter ff = incorrectResult.LobbyResult.FoeFighters.FirstOrDefault(f => f.FoughtBy == "P1");
-                correctAnswer += $"Fights: {ff.FoeNameWithHexes}";
+                correctAnswer += $"Fights: { (ff == null ? "" : ff.FoeNameWithHexes) }";
             }
 
             else if (_selected == "proficiency")
