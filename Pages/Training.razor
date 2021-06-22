@@ -82,6 +82,43 @@
                         <button id="focus-button-@btnNum" class="btn btn-lg btn-outline-primary mr-2" type="button" @onclick="() => GetAnswer(false, local_num)">@btnNum</button>
                     }
                 }
+                <div hidden=@(_selected.Substring(1,1) == "A")>
+                    <table>
+                        <tr>
+                            <td>Fights</td>
+                            <td>Weakening</td>
+                            <td>Confusion</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <select class="form-control w-auto" @bind="@_a1Answers.MyFoe">
+
+                                    <option value=""></option>
+                                    @foreach (var foe in _foes)
+                                    {
+                                        @if (foe.Type == FoeType.DarkWizard || foe.Type == FoeType.DeathEater)
+                                        {
+                                            <option value="@_state.FoeFullName(foe)"> @_state.FoeFullName(foe) </option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+                            <td><button class="btn @(_p1Answers.Weakening ? "btn-primary" : "btn-outline-primary")" @onclick="@(e => P1Answers("Weakening", "yes"))">Yes</button></td>
+                            <td><button class="btn @(_p1Answers.Weakening ? "btn-outline-primary" : "btn-primary")" @onclick="@(e => P1Answers("Weakening", "no"))">No</button></td>
+                        </tr>
+                        <tr>
+                            <td>Foe gets Weakening</td>
+
+                        </tr>
+                        <tr>
+                            <td>Foe gets Confusion</td>
+                            <td><button class="btn @(_p1Answers.Confusion ? "btn-primary" : "btn-outline-primary")" @onclick="@(e => P1Answers("Confusion", "yes"))">Yes</button></td>
+                            <td><button class="btn @(_p1Answers.Confusion ? "btn-outline-primary" : "btn-primary")" @onclick="@(e => P1Answers("Confusion", "no"))">No</button></td>
+                        </tr>
+                    </table>
+
+                    <button class="btn btn-outline-primary pt-1" @onclick="() => GetAnswer(false, 0)">Next</button>
+                </div>
                 <div hidden=@(_selected != "P1")>
                     <table>
                         <tr>
@@ -168,9 +205,9 @@
                 <td class="align-top">Correct:</td>
                 <td>@((MarkupString)@correctAnswer)</td>
             </tr>
-@*            <tr>
+            @*            <tr>
                 <td class=@(passFailText == "Pass" ? "text-success" : "text-warning") colspan="2">@passFailText</td>
-            </tr>*@
+                </tr>*@
         </table>
     </div>
     <div>
@@ -188,13 +225,15 @@
     [CascadingParameter]
     public UserSettings _state { get; set; }
 
-    int lobbiesToRun = 20;
-    int penaltySeconds = 12;
+    int lobbiesToRun => _state.NumberLobbies;
+    int penaltySeconds => _state.PenaltySeconds;
     //bool proficiencySelected = true;
     string _selected = "proficiency";
     string _selectedPretty => _selected.Humanize(LetterCasing.Title);
 
     P1Stuff _p1Answers = new P1Stuff();
+    AurorStuff _a1Answers = new AurorStuff();
+    AurorStuff _a2Answers = new AurorStuff();
 
 
     protected bool IsSettingDisabled { get; set; }
@@ -278,7 +317,6 @@
     void SetTrainingType(string type)
     {
         _selected = type;
-        @*penaltySeconds = 12;*@
 
         if (_selected == "focus" || _selected == "shields")
             _hideNumbers = false;
@@ -324,9 +362,9 @@
                 // Note that the following line is necessary because otherwise
                 // Blazor would not recognize the state change and not refresh the UI
                 InvokeAsync(() =>
-                                                                        {
-                                                                            StateHasChanged();
-                                                                        });
+                                                                            {
+                                                                                StateHasChanged();
+                                                                            });
             }
         }), null, 100, 100);
     }
@@ -450,7 +488,10 @@
         {
             bool isCorrect = true;
 
+            if (_selected == "shields")
+            {
 
+            }
             var shieldsSelected = 1 +
                     (lr.P1ShieldsA2 ? 1 : 0) +
                     (lr.P2ShieldsA2 ? 1 : 0) +
@@ -528,6 +569,7 @@
 
         return _p1Answers.P1Correct; ;
     }
+
 
     private void ReviewAnswers()
     {

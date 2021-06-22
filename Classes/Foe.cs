@@ -134,4 +134,44 @@ namespace HPWUHexingTrainer
         public bool P1Correct { get; set; }
     }
 
+    public class AurorStuff
+    {
+        bool IsA1 { get; set; }
+        public Foe MyFoe { get; set; }
+        public Foe FoeToHex1 { get; set; }
+        public Foe FoeToHex2 { get; set; }
+        int FocusToP1 { get; set; }
+        int FocusToP2 { get; set; }
+
+        //public string FoeNameP1 { get; set; }
+        //public string FoeNameP2 { get; set; }
+
+        // what hexes on each foe 
+        // focus passed to P1 (0 -> 4)
+        // focus passed to P2 (0 -> 4)
+
+        public bool FoeNameA1Correct { get; set; }
+        public bool FoeNameP1Correct { get; set; }
+        public bool FoeNameP2Correct { get; set; }
+
+        public bool AurorCorrect { get; set; }
+    }
+
+    //public class A2Stuff
+    //{
+    //    public string FoeNameA1 { get; set; }
+    //    public string FoeNameA2 { get; set; }
+    //    public string FoeNameMagi { get; set; }
+
+    //    // what hexes on each foe 
+    //    // focus passed to P1 (0 -> 4)
+    //    // focus passed to P2 (0 -> 4)
+
+    //    public bool FoeNameA1Correct { get; set; }
+    //    public bool FoeNameA2Correct { get; set; }
+    //    public bool FoeNameMagiCorrect { get; set; }
+
+    //    public bool A2Correct { get; set; }
+    //}
+
 }
