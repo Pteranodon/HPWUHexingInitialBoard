@@ -592,13 +592,15 @@ namespace HPWUHexingTrainer
                 //foreach (var f in orderedProfFoes)
                 for (int i = 0; i < orderedProfFoes.Count; i++)
                 {
-                    string foughtBy = i == 0 ? "P1" : "P2";
+                    string foughtBy = ProfFoughtBy(i);
 
-                    // if we're using ultra rule 1 and there is only 1 prof foe, P2 will take it and they may get a shield
-                    if (_state.UseUltraRule1 && orderedProfFoes.Count == 1)
-                    {
-                        foughtBy = "P2";
-                    }
+                    //    = i == 0 ? "P1" : "P2";
+
+                    //// if we're using ultra rule 1 and there is only 1 prof foe, P2 will take it and they may get a shield
+                    //if (_state.UseUltraRule1 && orderedProfFoes.Count == 1)
+                    //{
+                    //    foughtBy = "P2";
+                    //}
 
                     var f = orderedProfFoes[i];
                     AddFoeFighter(f, null, foughtBy);
@@ -762,6 +764,18 @@ namespace HPWUHexingTrainer
             return aurorFoeValue;
         }
 
+        private string ProfFoughtBy(int i)
+        {
+            string foughtBy = i == 0 ? "P1" : "P2";
+
+            // if we're using ultra rule 1 and there is only 1 prof foe, P2 will take it and they may get a shield
+            if (_state.UseUltraRule1 && orderedProfFoes.Count == 1)
+            {
+                foughtBy = "P2";
+            }
+
+            return foughtBy;
+        }
 
         private void DetermineProficiencyAndOptionalHexes()
         {
@@ -769,7 +783,8 @@ namespace HPWUHexingTrainer
 
             if (foeValue == 7)
             {
-                result.P1ShieldsP2 = true;
+                result.P1ShieldsP2 = true; 
+                result.P1ShieldsA2 = true;
                 AddDecision($"Focus passed = 8. We have a 🦄 lobby! P1 shields P2.");
             }
 
@@ -888,7 +903,9 @@ namespace HPWUHexingTrainer
                 //for (int i = 0; i < profFoes.Count; i++)
                 for (int i = 0; i < orderedProfFoes.Count; i++)
                 {
-                    string foughtBy = i == 0 ? "P1" : "P2";
+                   // string foughtBy = i == 0 ? "P1" : "P2";
+                   string foughtBy = ProfFoughtBy(i);
+
                     FoeFighter profFoe = result.FoeFighters.Where(f => f.FoughtBy == foughtBy).First();
 
                     if (profFoe.Foe.Type == FoeType.Werewolf && profFoe.Foe.Stars == StarName.Dangerous)
