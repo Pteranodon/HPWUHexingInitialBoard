@@ -798,7 +798,7 @@ namespace HPWUHexingTrainer
                 if (_state.UseUltraRule1 && orderedAurorFoes.Count <= 1 && foeValue >= 4)
                 {
                     result.P1ShieldsP2 = true;
-                    AddDecision("Ultra rule 1 - Focus passed >= 5 and <= 1 dark foes, shield for both A1 and P2.");
+                    AddDecision("Ultra rule 1: Focus passed >= 5 and <= 1 dark foes, shield for both A1 and P2.");
                 }
 
 
@@ -1099,6 +1099,25 @@ namespace HPWUHexingTrainer
 
             result.A2FocusKept = 4 - A2HexesCount - result.A2FocusPassed;
 
+
+            // Ultra 3 rule
+            // 1 prof foe, 1 magi or auror foe -> Ensure A2 only keeps 1 focus and passes the rest
+            if (_state.UseUltraRule3)
+            {
+                var profFoes = result.FoeFighters.Where(f => f.FoughtBy == "P1" || f.FoughtBy == "P2").Count();
+                var otherFoes = result.FoeFighters.Where(f => f.FoughtBy == "A1" || f.FoughtBy == "A2" || f.FoughtBy == "M").Count();
+
+                if (profFoes == 1 && otherFoes == 1 && result.A2FocusKept > 1)
+                {
+                    var focusOriginallyToKeep = result.A2FocusKept;
+                    result.A2FocusKept = 1;
+                    result.A2FocusPassed = result.A2FocusPassed + (focusOriginallyToKeep - result.A2FocusKept);
+
+                    AddDecision($"Ultra rule 3: A2 was keeping {focusOriginallyToKeep}, only keep 1, pass the rest.");
+                }
+            }
+
+
             // work out the which auror passes what focus to each prof. Only do this if proficiency is up, if not, all to P2
             if (result.Proficiency)
             {
@@ -1156,7 +1175,7 @@ namespace HPWUHexingTrainer
             if (result.A1FocusPassedToP1 + result.A2FocusPassedToP1 >= 2 && !result.P1ShieldsA2 && !result.P2ShieldsA2 && !result.P1ShieldsP2)
             {
                 result.P1ShieldsA2 = true;
-                AddDecision($"P1 - got {result.A1FocusPassedToP1 + result.A2FocusPassedToP1} focus, shields A2 =.");
+                AddDecision($"P1 - got {result.A1FocusPassedToP1 + result.A2FocusPassedToP1} focus, shields A2.");
             }
 
         }

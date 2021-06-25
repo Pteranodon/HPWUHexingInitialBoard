@@ -19,6 +19,7 @@ namespace HPWUHexingTrainer.Classes
         private bool showProgressDuringTraining = true;
         private bool useUltraRule1 = false;
         private bool useUltraRule2 = false;
+        private bool useUltraRule3 = false;
 
         public string FoeDisplayType
         {
@@ -97,6 +98,14 @@ namespace HPWUHexingTrainer.Classes
             get => useUltraRule2; set
             {
                 useUltraRule2 = value;
+                RaisePropertyChanged();
+            }
+        }
+        public bool UseUltraRule3
+        {
+            get => useUltraRule3; set
+            {
+                useUltraRule3 = value;
                 RaisePropertyChanged();
             }
         }
