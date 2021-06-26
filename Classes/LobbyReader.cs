@@ -623,7 +623,7 @@ namespace HPWUHexingTrainer
                     if (f.Type == FoeType.Werewolf && (int)f.Stars == 5)
                     {
                         // in Ultra rule 1 we want to only add confusion hex to 5* wolf. If P2 doesn't get a shield, we'll add weakening later.
-                        if (_state.UseUltraRule1)
+                        if (_state.UseUltraRule1 && foughtBy == "P2")
                         {
                             ff.Hexes.Add(HexType.Confusion);
                             AddDecision($"{foughtBy} - Ultra rule 1 - Confusion hex added to {_state.FoeFullName(f)}. Add 1 to focus passed.");
