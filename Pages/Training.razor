@@ -222,9 +222,9 @@
                 // Note that the following line is necessary because otherwise
                 // Blazor would not recognize the state change and not refresh the UI
                 InvokeAsync(() =>
-                    {
-                        StateHasChanged();
-                    });
+                {
+                    StateHasChanged();
+                });
             }
         }), null, 100, 100);
     }
@@ -241,10 +241,11 @@
 
         _secondsDelayUsed = penaltySeconds; // set this at start to display after training.
         _selectedUsed = _selected.Humanize(LetterCasing.Title);
-        _methodUsed = $"{(_state.ShowAdvancedRules ? "Advanced" : "Standard")} {(_state.UseUltraRule1 ? " U1" : "")} {(_state.UseUltraRule2 ? " U2" : "")}" ;
+        _methodUsed = $"{(_state.ShowAdvancedRules ? "Advanced" : "Standard")} {(_state.UseUltraRule1 ? " U1" : "")} " +
+                $"{(_state.UseUltraRule2 ? " U2" : "")} {(_state.UseUltraRule3 ? " U3" : "")}" ;
 
 
-    
+
 
 
         Count = 0.0;
