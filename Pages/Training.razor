@@ -82,7 +82,7 @@
                         <button id="focus-button-@btnNum" class="btn btn-lg btn-outline-primary mr-2" type="button" @onclick="() => GetAnswer(false, local_num)">@btnNum</button>
                     }
                 }
-                <div hidden=@(_selected.Substring(1,1) == "A")>
+                @*<div hidden=@(_selected.Substring(1,1) == "A")>
                     <table>
                         <tr>
                             <td>Fights</td>
@@ -118,7 +118,7 @@
                     </table>
 
                     <button class="btn btn-outline-primary pt-1" @onclick="() => GetAnswer(false, 0)">Next</button>
-                </div>
+                </div>*@
                 <div hidden=@(_selected != "P1")>
                     <table>
                         <tr>
@@ -225,15 +225,18 @@
     [CascadingParameter]
     public UserSettings _state { get; set; }
 
-    int lobbiesToRun => _state.NumberLobbies;
-    int penaltySeconds => _state.PenaltySeconds;
+    //int lobbiesToRun => _state.NumberLobbies;
+    //int penaltySeconds => _state.PenaltySeconds;
+
+    int lobbiesToRun;
+    int penaltySeconds;
     //bool proficiencySelected = true;
     string _selected = "proficiency";
     string _selectedPretty => _selected.Humanize(LetterCasing.Title);
 
     P1Stuff _p1Answers = new P1Stuff();
-    AurorStuff _a1Answers = new AurorStuff();
-    AurorStuff _a2Answers = new AurorStuff();
+    //AurorStuff _a1Answers = new AurorStuff();
+    //AurorStuff _a2Answers = new AurorStuff();
 
 
     protected bool IsSettingDisabled { get; set; }
@@ -290,6 +293,9 @@
 
         currentId = Id ?? -1;
         ChangedTrainingType();
+
+        lobbiesToRun = _state.NumberLobbies;
+        penaltySeconds = _state.PenaltySeconds;
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -362,9 +368,9 @@
                 // Note that the following line is necessary because otherwise
                 // Blazor would not recognize the state change and not refresh the UI
                 InvokeAsync(() =>
-                                                                            {
-                                                                                StateHasChanged();
-                                                                            });
+                {
+                    StateHasChanged();
+                });
             }
         }), null, 100, 100);
     }
