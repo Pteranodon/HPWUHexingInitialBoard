@@ -183,6 +183,10 @@ namespace HPWUHexingTrainer
             FoeStaminaImage = foeStaminaImg;
             HasConfusion = hasConfusion;
         }
+        public FoeForDetHex(int id)
+        {
+            this.Id = id;
+        }
     }
 
 }

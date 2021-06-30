@@ -10,12 +10,26 @@
         <ul ondragover="event.preventDefault();" style="margin:20px">
             @foreach (var item in _foeDetHex)
             {
+          
                 if (item != null)
                 {
                     <li draggable="true" style="list-style-type:none; height:90px" @key="item.Id" tabindex="1"
                         @ondrop="@(() => Drop(item))" @ondrag="@(() => StartDrag(item))">
-                        <img class="foeImg" src="@item.Foe.ImagePath">
-                        <img src="@item.FoeStaminaImage">
+
+                        <div>@item.Id</div>
+
+                        @if (item.Id == 0)
+                        {
+                            <hr />
+                            <div> HERE!</div>
+                        }
+
+                        else
+                        {
+
+                            <img class="foeImg" src="@item.Foe.ImagePath">
+                            <img src="@item.FoeStaminaImage">
+                        }
                     </li>
                 }
                 else
@@ -42,6 +56,8 @@
         _foes = Foe.GetNewLobby(8);
 
         _foeDetHex = new List<FoeForDetHex>();
+
+        // _foeDetHex.Add(new FoeForDetHex(0));
 
         for (int i = 0; i < _foes.Count; i++)
         {
@@ -91,8 +107,11 @@
 
             }
 
-            _foeDetHex.Add(new FoeForDetHex(foe, i, foeStaminaImg, hasConfusion));
+            _foeDetHex.Add(new FoeForDetHex(foe, i + 1, foeStaminaImg, hasConfusion));
+
         }
+
+        _foeDetHex.Prepend(new FoeForDetHex(new Foe(), 0, null, false));
 
     }
 
@@ -116,7 +135,7 @@
             Console.WriteLine($"Drop index is {index}, move from {currentIndex}");
             // get current item
             var current = _foeDetHex[currentIndex];
-            // remove game from current index
+            // remove from current index
             _foeDetHex.RemoveAt(currentIndex);
             _foeDetHex.Insert(index, current);
 
