@@ -44,14 +44,14 @@ namespace HPWUHexingTrainer
             return type.ToString().Humanize(LetterCasing.Title);
         }
 
-        public static List<Foe> GetNewLobby()
+        public static List<Foe> GetNewLobby(int foeCount = 5)
         {
             List<Foe> _foes = new List<Foe>();
             int PERCENT_ELITES = 10;
             Random rnd = new Random();
 
             // generate 5 random foes
-            for (int cnt = 0; cnt < 5; cnt++)
+            for (int cnt = 0; cnt < foeCount; cnt++)
             {
                 Foe foe = new Foe();
                 foe.Stars = (StarName)rnd.Next(3, 6);
@@ -142,20 +142,14 @@ namespace HPWUHexingTrainer
         public Foe FoeToHex2 { get; set; }
         int FocusToP1 { get; set; }
         int FocusToP2 { get; set; }
-
-        //public string FoeNameP1 { get; set; }
-        //public string FoeNameP2 { get; set; }
-
-        // what hexes on each foe 
-        // focus passed to P1 (0 -> 4)
-        // focus passed to P2 (0 -> 4)
-
         public bool FoeNameA1Correct { get; set; }
         public bool FoeNameP1Correct { get; set; }
         public bool FoeNameP2Correct { get; set; }
 
         public bool AurorCorrect { get; set; }
     }
+
+
 
     //public class A2Stuff
     //{
@@ -173,5 +167,22 @@ namespace HPWUHexingTrainer
 
     //    public bool A2Correct { get; set; }
     //}
+
+    public class FoeForDetHex
+    {
+        public Foe Foe { get; set; }
+        public int Id { get; set; }
+        public string FoeStaminaImage { get; set; }
+        public bool HasWeakening { get; set; }
+        public bool HasConfusion { get; set; }
+
+        public FoeForDetHex(Foe foe, int id, string foeStaminaImg, bool hasConfusion)
+        {
+            this.Foe = foe;
+            this.Id = id;
+            FoeStaminaImage = foeStaminaImg;
+            HasConfusion = hasConfusion;
+        }
+    }
 
 }
