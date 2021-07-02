@@ -10,27 +10,36 @@
         <ul ondragover="event.preventDefault();" style="margin:20px">
             @foreach (var item in _foeDetHex)
             {
-          
                 if (item != null)
                 {
-                    <li draggable="true" style="list-style-type:none; height:90px" @key="item.Id" tabindex="1"
-                        @ondrop="@(() => Drop(item))" @ondrag="@(() => StartDrag(item))">
-
-                        <div>@item.Id</div>
-
-                        @if (item.Id == 0)
-                        {
+                    @if (item.Id == 0)
+                    {
+                        <li draggable="true" style="list-style-type:none; height:10px" @key="item.Id" tabindex="1"
+                            @ondrop="@(() => Drop(item))" @ondrag="@(() => StartDrag(item))">
                             <hr />
-                            <div> HERE!</div>
-                        }
+                        </li>
+                    }
+                    else
+                    {
+                        <li draggable="true" style="list-style-type:none; height:90px" @key="item.Id" tabindex="1"
+                            @ondrop="@(() => Drop(item))" @ondrag="@(() => StartDrag(item))">
+                            <div class="row">
+                                <div class="col-4"><img class="foeImg" src="@item.Foe.ImagePath"></div>
+                                <div class="col-3"><img style="width:90px" src="@item.FoeStaminaImage"></div>
+                                <div class="col-4 ml-1">
+                                    @if (item.HasWeakening)
+                                    {
+                                        <img style="height:40px; width:40px" src="/images/weakening_hex.png">
 
-                        else
-                        {
-
-                            <img class="foeImg" src="@item.Foe.ImagePath">
-                            <img src="@item.FoeStaminaImage">
-                        }
-                    </li>
+                                    }
+                                    @if (item.HasConfusion)
+                                    {
+                                        <img style="height:40px; width:40px" src="/images/confusion_hex.png">
+                                    }
+                                </div>
+                            </div>
+                        </li>
+                    }
                 }
                 else
                 {
@@ -96,7 +105,8 @@
             bool hasConfusion = false;
             if (
                 (foe.Type == FoeType.DarkWizard && (int)foe.Stars == 5) ||
-                    (foe.Type == FoeType.Erkling && (int)foe.Stars >= 4)
+                    (foe.Type == FoeType.Erkling && (int)foe.Stars >= 4) ||
+                    (foe.Type == FoeType.Werewolf && (int)foe.Stars >= 4)
                 )
             {
 
@@ -104,14 +114,29 @@
                 {
                     hasConfusion = true;
                 }
-
             }
 
-            _foeDetHex.Add(new FoeForDetHex(foe, i + 1, foeStaminaImg, hasConfusion));
+            // randomly add auror hexes - only 'valid' hexes
+            bool hasWeakening = false;
+            if (
+                (foe.Type == FoeType.DarkWizard && (int)foe.Stars == 5) ||
+                    (foe.Type == FoeType.Erkling && (int)foe.Stars >= 4) ||
+                    (foe.Type == FoeType.Werewolf && (int)foe.Stars >= 4) ||
+                    (foe.Type == FoeType.Pixie && (int)foe.Stars == 5 && foe.Elite)
+                )
+            {
+
+                if (rnd.Next(0, 2) == 1)
+                {
+                    hasWeakening = true;
+                }
+            }
+
+            _foeDetHex.Add(new FoeForDetHex(foe, i + 1, foeStaminaImg, hasWeakening, hasConfusion));
 
         }
 
-        _foeDetHex.Prepend(new FoeForDetHex(new Foe(), 0, null, false));
+        _foeDetHex = _foeDetHex.Prepend(new FoeForDetHex(new Foe(), 0, null, false, false)).ToList();
 
     }
 

@@ -176,11 +176,12 @@ namespace HPWUHexingTrainer
         public bool HasWeakening { get; set; }
         public bool HasConfusion { get; set; }
 
-        public FoeForDetHex(Foe foe, int id, string foeStaminaImg, bool hasConfusion)
+        public FoeForDetHex(Foe foe, int id, string foeStaminaImg, bool hasWeakening, bool hasConfusion)
         {
             this.Foe = foe;
             this.Id = id;
             FoeStaminaImage = foeStaminaImg;
+            HasWeakening = hasWeakening;
             HasConfusion = hasConfusion;
         }
         public FoeForDetHex(int id)
