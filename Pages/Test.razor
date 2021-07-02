@@ -2,6 +2,7 @@
 @page "/test/{Id:int}"
 
 @using HPWUHexingTrainer.Shared
+@using HPWUHexingTrainer.Classes
 
 <h3>Test yourself with some lobbies from the training sessions</h3>
 
@@ -12,6 +13,7 @@
         <label class="pl-1" for="chkRandom">Random order?</label>
         <input id="chkRandom" type="checkbox" @bind="@randomTests" />
         <label class=" h4 pt-2 pl-2">@_imgName</label>
+        <label class=" pt-2 pl-2">@_methodUsed</label>
     </div>
 </div>
 
@@ -26,21 +28,27 @@
     [Parameter]
     public int? Id { get; set; }
 
+    [CascadingParameter]
+    public UserSettings _state { get; set; }
+
     private LobbyDetails _bd = new LobbyDetails();
     private List<Foe> _foes = new List<Foe>();
     private bool randomTests = false;
     private int testListElement = -1;
     private string _imgName;
     private List<TestLobby> _testLobbies;
+    private string _methodUsed;
 
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
+        getCurrentSettings();
+
         Id = Id ?? -1;
 
-        if (Id >= 0)
+        if (Id.Value >= 0)
         {
             _testLobbies = GenerateTestLobbies.Create();
             LoadLobby(_testLobbies[Id.Value]);
@@ -95,13 +103,20 @@
             _foes = tb.Foes;
     }
 
+    private void getCurrentSettings()
+    {
+        _methodUsed = $"{(_state.ShowAdvancedRules ? "Advanced" : "Standard")} {(_state.ShowAdvancedRules && _state.UseUltraRule1 ? " U1" : "")} " +
+                $"{(_state.ShowAdvancedRules && _state.UseUltraRule2 ? " U2" : "")} {(_state.ShowAdvancedRules && _state.UseUltraRule3 ? " U3" : "")}";
+    }
+
     private void RefreshLobbyDetails(TestLobby tb)
     {
-
         _bd.ImgSrc = tb.ImageFileName;
         _bd.ImgName = tb.Name;
         _bd.HideImage = false;
         _bd.Foes = tb.Foes.ToList();
         _bd.LoadLobby();
+
+        getCurrentSettings();
     }
 }
