@@ -16,6 +16,13 @@
         <label class=" pt-2 pl-2">@_methodUsed</label>
     </div>
 </div>
+<div class="row pt-2">
+    <div class="col">
+        <button class="btn btn-outline-primary" @onclick="CalculateAllLobbies">CalculateAllLobbies</button>
+    </div>
+</div>
+
+
 
 <div class="row pt-2">
     <div class="col">
@@ -118,5 +125,18 @@
         _bd.LoadLobby();
 
         getCurrentSettings();
+    }
+
+    private void CalculateAllLobbies()
+    {
+        List<LobbyResult> results = new List<LobbyResult>();
+        for (int i = 0; i < _testLobbies.Count; i++)
+        {
+            testListElement = i;
+            LoadLobby(_testLobbies[testListElement]);
+
+            LobbyResult lr = new LobbyReader(_foes, _state).Read();
+            results.Add(lr);
+        }
     }
 }
