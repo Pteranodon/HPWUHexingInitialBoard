@@ -1,11 +1,15 @@
+
 using Blazored.LocalStorage;
 using HPWUHexingTrainer.Classes;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
+
+
 
 namespace HPWUHexingTrainer
 {
@@ -25,6 +29,18 @@ namespace HPWUHexingTrainer
             builder.Services.AddScoped<UserSettingsProvider, UserSettingsProvider>();
 
             await builder.Build().RunAsync();
+        }
+    }
+
+
+    public static class FileUtil
+    {
+        public async static Task SaveAs(IJSRuntime js, string filename, byte[] data)
+        {
+            await js.InvokeAsync<object>(
+                "saveAsFile",
+                filename,
+                Convert.ToBase64String(data));
         }
     }
 }

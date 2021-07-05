@@ -3,6 +3,8 @@
 
 @using HPWUHexingTrainer.Shared
 @using HPWUHexingTrainer.Classes
+@using Newtonsoft.Json
+@inject IJSRuntime js
 
 <h3>Test yourself with some lobbies from the training sessions</h3>
 
@@ -18,7 +20,8 @@
 </div>
 <div class="row pt-2">
     <div class="col">
-        <button class="btn btn-outline-primary" @onclick="CalculateAllLobbies">CalculateAllLobbies</button>
+        @*Uncomment the line below to generate csv file output for each of the 720 unique boards*@
+        @*<button class="btn btn-outline-primary" @onclick="CalculateAllLobbies">CalculateAllLobbies</button>*@
     </div>
 </div>
 
@@ -30,6 +33,7 @@
     </div>
 </div>
 
+
 @code {
 
     [Parameter]
@@ -37,6 +41,7 @@
 
     [CascadingParameter]
     public UserSettings _state { get; set; }
+
 
     private LobbyDetails _bd = new LobbyDetails();
     private List<Foe> _foes = new List<Foe>();
@@ -46,10 +51,13 @@
     private List<TestLobby> _testLobbies;
     private string _methodUsed;
 
+    private IJSObjectReference _jsModule;
+
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        //_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/file.js");
 
         getCurrentSettings();
 
@@ -65,7 +73,7 @@
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if (Id.Value >= 0)
+        if (Id != null && Id.Value >= 0)
         {
             RefreshLobbyDetails(_testLobbies[Id.Value]); // this needs to wait until rendering complete
             testListElement = Id.Value;
@@ -112,8 +120,8 @@
 
     private void getCurrentSettings()
     {
-        _methodUsed = $"{(_state.ShowAdvancedRules ? "Advanced" : "Standard")} {(_state.ShowAdvancedRules && _state.UseUltraRule1 ? " U1" : "")} " +
-                $"{(_state.ShowAdvancedRules && _state.UseUltraRule2 ? " U2" : "")} {(_state.ShowAdvancedRules && _state.UseUltraRule3 ? " U3" : "")}";
+        _methodUsed = $"{(_state.ShowAdvancedRules ? "Advanced" : "Standard")}{(_state.ShowAdvancedRules && _state.UseUltraRule1 ? " U1" : "")}" +
+                $"{(_state.ShowAdvancedRules && _state.UseUltraRule2 ? " U2" : "")}{(_state.ShowAdvancedRules && _state.UseUltraRule3 ? " U3" : "")}";
     }
 
     private void RefreshLobbyDetails(TestLobby tb)
@@ -129,14 +137,56 @@
 
     private void CalculateAllLobbies()
     {
-        List<LobbyResult> results = new List<LobbyResult>();
+        _testLobbies = GenerateTestLobbies.Create();
+        List<LobbyResultLite> results = new List<LobbyResultLite>();
+
+        // add header row
+        string csv = $"id, focuspassed, focuskept, shields, proficiency{Environment.NewLine}";
+
         for (int i = 0; i < _testLobbies.Count; i++)
+        //for (int i = 0; i < 3; i++)
         {
+            Console.WriteLine($"Reading {i} ");
             testListElement = i;
             LoadLobby(_testLobbies[testListElement]);
 
             LobbyResult lr = new LobbyReader(_foes, _state).Read();
-            results.Add(lr);
+
+            int passed = lr.A1FocusPassed + lr.A2FocusPassed;
+            int kept = lr.A1FocusKept + lr.A2FocusKept;
+            int shields = Convert.ToInt32(lr.P1ShieldsA2) + Convert.ToInt32(lr.P1ShieldsP2) + Convert.ToInt32(lr.P2ShieldsA2);
+
+            results.Add(new LobbyResultLite(i, passed, kept, shields, lr.Proficiency));
+
+            csv += $"{i}, {passed}, {kept}, {shields}, {lr.Proficiency}{Environment.NewLine}";
+        }
+
+        var bytes = System.Text.Encoding.UTF8.GetBytes(csv);
+        DownloadBinaryOptim(bytes);
+    }
+
+    async Task DownloadText(byte[] bytes)
+    {
+        string fileName = $"results { _methodUsed }.csv";
+        await js.InvokeVoidAsync("BlazorDownloadFile", fileName, "text/plain", bytes);
+    }
+
+
+    async void DownloadBinaryOptim(byte[] bytes)
+    {
+        string fileName = $"results { _methodUsed }.csv";
+        string contentType = "text/plain";
+
+        // Check if the IJSRuntime is the WebAssembly implementation of the JSRuntime
+        if (js is IJSUnmarshalledRuntime webAssemblyJSRuntime)
+        {
+            var reference = DotNetObjectReference.Create(this);
+            webAssemblyJSRuntime.InvokeUnmarshalled<string, string, byte[], bool>("BlazorDownloadFileFast", fileName, contentType, bytes);
+        }
+        else
+        {
+            // Fall back to the slow method if not in WebAssembly
+            await _jsModule.InvokeVoidAsync("BlazorDownloadFile", fileName, contentType, bytes);
         }
     }
 }

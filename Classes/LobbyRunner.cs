@@ -1,5 +1,4 @@
-﻿using CsvHelper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -50,7 +49,7 @@ namespace HPWUHexingTrainer.Classes
                 }
             }
 
-            BuildCsv(results);
+            //BuildCsv(results);
             AnalyseResults(results);
 
             DateTime endTime = DateTime.Now;
@@ -91,18 +90,7 @@ namespace HPWUHexingTrainer.Classes
             return "Foe 1, Foe 2, Foe 3";
         }
 
-        private static string BuildCsv(List<LobbyResult> results)
-        {
-            string blah;
-            using (var writer = new StreamWriter(@".\results.csv"))
-            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-            {
-                csv.WriteRecords(results);
-                blah = csv.ToString();
-            }
 
-            return blah;
-        }
 
         private static void AnalyseResults(List<LobbyResult> results)
         {

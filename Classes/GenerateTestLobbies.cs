@@ -16,7 +16,8 @@ namespace HPWUHexingTrainer
             List<Foe> foes = new List<Foe>();
 
 
-
+            foes.Clear(); foes.AddRange(new Foe[] {});
+            lobbies.Add(new TestLobby("Lobby 1", "images/blankboard.png", foes.ToList()));
             foes.Clear(); foes.AddRange(new Foe[] { new Foe(StarName.Dangerous, FoeType.Acromantula) });
             lobbies.Add(new TestLobby("Lobby 2", "images/blankboard.png", foes.ToList()));
             foes.Clear(); foes.AddRange(new Foe[] { new Foe(StarName.Fierce, FoeType.Erkling) });

@@ -1,5 +1,4 @@
-﻿using CsvHelper.Configuration;
-using CsvHelper.Configuration.Attributes;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ namespace HPWUHexingTrainer.Classes
     public class LobbyResult
     {
         public bool Advanced { get; set; }
-        [Name("proficiency")]
+  
         public bool Proficiency { get; set; }
 
 
@@ -66,7 +65,7 @@ namespace HPWUHexingTrainer.Classes
             //if (A1FocusPassed == 4)
             //    sb.AppendLine($"Passes 2 to P1 and 2 to P2 - Keeps: { A1FocusKept }");
             //else
-                sb.AppendLine($"Passes: { A1FocusPassed } to P2 - Keeps: { A1FocusKept }");
+            sb.AppendLine($"Passes: { A1FocusPassed } to P2 - Keeps: { A1FocusKept }");
 
             foreach (Hex h in A1Hexes)
                 sb.AppendLine($"Hexes: { h.FoeName } with { h.HexType.ToString() }");
@@ -93,7 +92,7 @@ namespace HPWUHexingTrainer.Classes
             //if (A1FocusPassed == 4)
             //    sb.AppendLine($"Shields A1 { ((A1FocusPassed == 4) ? " AND Shields A2" : "") }");
             //else
-                sb.AppendLine("Shields A1");
+            sb.AppendLine("Shields A1");
 
             //////////////////////////
             sb.AppendLine();
@@ -123,12 +122,22 @@ namespace HPWUHexingTrainer.Classes
         Confusion
     }
 
-    public class LobbyResultMap : ClassMap<LobbyResult>
+
+    public class LobbyResultLite
     {
-        public LobbyResultMap()
+        int LobbyId { get; set; }
+        int FocusPassed { get; set; }
+        int FocusKept { get; set; }
+        int Shields { get; set; }
+        bool Proficiency { get; set; }
+
+        public LobbyResultLite(int Id, int passed, int kept, int shields, bool proficiency)
         {
-            Map(r => r.Proficiency).Index(0).Name("proficiency");
-            //Map(m => m.Name).Index(1).Name("name");
+            LobbyId = Id;
+            FocusPassed = passed;
+            FocusKept = kept;
+            Shields = shields;
+            Proficiency = proficiency;
         }
     }
 }
