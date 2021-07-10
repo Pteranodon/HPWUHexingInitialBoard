@@ -65,7 +65,7 @@
 
         if (Id.Value >= 0)
         {
-            _testLobbies = GenerateTestLobbies.Create();
+            LoadAllLobbies();
             LoadLobby(_testLobbies[Id.Value]);
         }
     }
@@ -84,7 +84,7 @@
 
     public void GetNewLobby()
     {
-        _testLobbies = GenerateTestLobbies.Create();
+        LoadAllLobbies();
 
         if (randomTests)
         {
@@ -104,6 +104,31 @@
         RefreshLobbyDetails(_testLobbies[testListElement]);
     }
 
+    private void LoadAllLobbies()
+    {
+        if (_testLobbies == null || _testLobbies.Count == 0)
+        {
+            _testLobbies = GenerateTestLobbies.Create();
+
+            // Make all lobbies have 5 foes
+            Random rnd = new Random();
+            foreach (var lobby in _testLobbies)
+            {
+                // if we don't have 5 foes, pad with random elites
+                while (lobby.Foes.Count < 5)
+                {
+                    Foe foe = new Foe();
+                    foe.Elite = true;
+
+                    foe.Stars = (StarName)rnd.Next(3, 6);
+                    foe.Type = (FoeType)rnd.Next(1, 7);
+
+                    lobby.Foes.Add(foe);
+                }
+            }
+        }
+    }
+
     private void LoadLobby(TestLobby tb)
     {
         _foes.Clear();
@@ -115,7 +140,8 @@
         _imgName = tb.Name ?? "Lobby X";
 
         if (tb.Foes != null)
-            _foes = tb.Foes;
+            _foes = tb.Foes.ToList();
+
     }
 
     private void getCurrentSettings()
@@ -137,7 +163,7 @@
 
     private void CalculateAllLobbies()
     {
-        _testLobbies = GenerateTestLobbies.Create();
+        LoadAllLobbies();
         List<LobbyResultLite> results = new List<LobbyResultLite>();
 
         // add header row
